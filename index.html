@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Bitcoin API</title>
+    <link rel = "stylesheet" type = "text/css" href = "stylesheet.css" />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script type="text/javascript" src=".json"></script>
+</head>
+<body>
+
+    <h1>Evolution of the price of Bitcoin over the years</h1>
+    <div>
+            <p>From: <input type="date" id="start-date" placeholder="Start Date"></p>
+            <p>To: <input type="date" id="end-date" placeholder="End Date"></p>
+            <p>Currency:
+                <select type="text" id="currency">
+                    <option value="">--Please choose a currency--</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="USD">USD</option>
+
+                </select>
+            </p>  
+            <button id="submit">Submit</button>
+    </div>  
+
+    <canvas id="myChart"></canvas>
+    <script>
+
+    window.onload = function() {
+        var submitButton = document.getElementById('submit')
+        submitButton.addEventListener("click", function(){
+            var startDate = document.getElementById('start-date').value
+            var endDate = document.getElementById('end-date').value
+            var currency = document.getElementById('currency').value
+              
+            var apiStartDate = startDate.split('/').reverse().join('-')
+            var apiEndDate= endDate.split('/').reverse().join('-')
+
+            console.log(apiStartDate, apiEndDate);
+            debugger
+            axios.get(`https://api.coindesk.com/v1/bpi/historical/close.json?start=${apiStartDate}&end=${apiEndDate}&currency=${currency}`)
+                
+            .then((response)=> {
+                debugger
+                let horizontalAxis = Object.keys(response.data.bpi)
+                let verticalAxis = Object.values(response.data.bpi)
+
+                var ctx = document.getElementById('myChart').getContext('2d');
+                var chart = new Chart(ctx, {
+                // The type of chart we want to create
+                    type: 'line',
+
+                // The data for our dataset
+                    data: {
+                        labels: horizontalAxis,
+                        datasets: [{
+                            label: 'Bitcoin dataset',
+                            backgroundColor: '#A4B8C4',
+                            borderColor: '#6E8387',
+                            data: verticalAxis
+                        }]
+                    },
+                });
+            })
+
+            .catch((error)=> {
+                // to do: proper error handling
+            })  
+        })
+    }
+
+        
+    </script>
+    
+</body>
+</html>
